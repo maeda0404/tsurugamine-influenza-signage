@@ -1,49 +1,71 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#071a33">
-  <title>神奈川県 インフルエンザ流行状況</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <noscript><div class="noscript">JavaScriptが無効です。感染対策情報のみ表示します。</div></noscript>
-  <main class="signage" aria-labelledby="page-title">
-    <section class="status-panel" aria-live="polite">
-      <p class="eyebrow">神奈川県</p>
-      <h1 id="page-title">インフルエンザ<br>流行状況</h1>
-      <div id="level" class="level level-loading"><span class="level-label">確認中</span></div>
-      <div class="metric">
-        <span id="value" class="metric-value">--</span><span id="unit" class="metric-suffix">人</span>
-      </div>
-      <p id="metricLabel" class="metric-label">定点当たり報告数</p>
-      <p id="trend" class="trend">データを読み込んでいます</p>
-      <p id="updated" class="updated">最終更新：確認中</p>
-      <p id="dataState" class="data-state">表示データは公開前のプレースホルダーです</p>
-    </section>
+<div class="container">
 
-    <section class="measures" aria-labelledby="measures-title">
-      <h2 id="measures-title">感染対策 3つの基本</h2>
-      <div class="measure-grid">
-        <article class="measure-card">
-          <img src="assets/handwash.png" alt="手洗いのイラスト" onerror="this.hidden=true;this.nextElementSibling.classList.add('image-missing')">
-          <div><h3>手洗い</h3><p>こまめな手洗いで<br>感染を予防</p></div>
-        </article>
-        <article class="measure-card">
-          <img src="assets/healthcheck.png" alt="体調確認のイラスト" onerror="this.hidden=true;this.nextElementSibling.classList.add('image-missing')">
-          <div><h3>体調報告</h3><p>体調に変化があれば<br>速やかに報告</p></div>
-        </article>
-        <article class="measure-card">
-          <img src="assets/ventilation.png" alt="換気のイラスト" onerror="this.hidden=true;this.nextElementSibling.classList.add('image-missing')">
-          <div><h3>換気</h3><p>こまめに空気を<br>入れ替えよう</p></div>
-        </article>
-      </div>
-    </section>
+    <div class="main-panel">
 
-    <footer>発熱・咳・のどの痛みなど、体調に変化がある場合は無理をせず報告してください</footer>
-  </main>
-  <script src="js/config.js"></script>
-  <script src="js/app.js" defer></script>
-</body>
-</html>
+        <div class="status-panel">
+
+            <div class="pref">
+                神奈川県
+            </div>
+
+            <h1>
+                インフルエンザ流行状況
+            </h1>
+
+            <div class="level">
+                警報
+            </div>
+
+            <div class="value">
+                23.4
+            </div>
+
+            <div class="unit">
+                定点当たり報告数
+            </div>
+
+        </div>
+
+        <div class="measure-panel">
+
+            <div class="measure">
+
+                assets/handwash.png
+
+                <div class="measure-title">
+                    手洗い
+                </div>
+
+            </div>
+
+            <div class="measure">
+
+                assets/healthcheck.png
+
+                <div class="measure-title">
+                    体調報告
+                </div>
+
+            </div>
+
+            <div class="measure">
+
+                assets/ventilation.png
+
+                <div class="measure-title">
+                    換気
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+
+        発熱・咳・のどの痛みがある場合は無理をせず報告してください
+
+    </footer>
+
+</div>
