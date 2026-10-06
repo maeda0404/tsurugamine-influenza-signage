@@ -1,56 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#051d3a">
-    <title>神奈川県 インフルエンザ流行状況</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071a33">
+  <title>神奈川県 インフルエンザ流行状況</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="screen">
-        <header>
-            <div class="prefecture">神奈川県</div>
-            <div class="title">インフルエンザ流行状況</div>
-        </header>
-
-        <main>
-            <section class="status" aria-live="polite">
-                <div class="level" id="level">確認中</div>
-
-                <div class="value">
-                    <span id="value">--</span>
-                    <span class="unit">人</span>
-                </div>
-
-                <div class="caption">定点当たり報告数</div>
-                <div class="update" id="update">公開データ接続前</div>
-            </section>
-
-            <section class="measures" aria-label="感染対策3つの基本">
-                <div class="measure">
-                    <img src="assets/handwash.png" alt="手洗いのイラスト">
-                    <div class="measure-title">手洗い</div>
-                </div>
-
-                <div class="measure">
-                    <img src="assets/healthcheck.png" alt="体調報告のイラスト">
-                    <div class="measure-title">体調報告</div>
-                </div>
-
-                <div class="measure">
-                    <img src="assets/ventilation.png" alt="換気のイラスト">
-                    <div class="measure-title">換気</div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            発熱・咳・のどの痛みなど、体調に変化がある場合は無理をせず報告してください
-        </footer>
-    </div>
-
-    <script src="js/config.js"></script>
-    <script src="js/app.js" defer></script>
+  <div class="screen">
+    <header class="header">
+      <div class="prefecture">神奈川県</div>
+      <h1 class="title">インフルエンザ流行状況</h1>
+    </header>
+    <main class="content">
+      <section class="status" aria-label="インフルエンザ流行状況" aria-live="polite">
+        <div id="level" class="level level-unknown"><span class="level-label">確認中</span></div>
+        <div class="value"><span id="value">--</span><span id="unit" class="unit">人</span></div>
+        <div id="metricLabel" class="caption">定点当たり報告数</div>
+        <div id="trend" class="trend">公開データ接続前</div>
+        <div id="updated" class="updated">最終更新：未設定</div>
+        <div id="dataState" class="data-state">実データ取得処理は未接続です</div>
+      </section>
+      <section class="measures" aria-label="感染対策3つの基本">
+        <div class="measure"><img src="assets/handwash.png" alt="手洗いのイラスト"><span class="measure-title">手洗い</span></div>
+        <div class="measure"><img src="assets/healthcheck.png" alt="体調報告のイラスト"><span class="measure-title">体調報告</span></div>
+        <div class="measure"><img src="assets/ventilation.png" alt="換気のイラスト"><span class="measure-title">換気</span></div>
+      </section>
+    </main>
+    <footer>体調に変化がある場合は、無理をせず報告してください</footer>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/app.js" defer></script>
 </body>
 </html>
