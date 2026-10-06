@@ -1,27 +1,68 @@
-/* 4:3横向き表示領域を余白なく全面使用。画面内に別の4:3枠は作らない。 */
+/* 4:3横向きサイネージ: 表示領域を全面使用。淡い背景版 */
+:root {
+  --ink: #183047;
+  --muted: #425a70;
+  --surface: #f6f9fc;
+  --panel: #e8f2f9;
+  --panel-edge: #d2e4ef;
+  --accent: #155d8d;
+  --yellow: #ffe08a;
+}
 * { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; }
-body { overflow: hidden; background: #071a33; font-family: "Yu Gothic", Meiryo, sans-serif; }
-.screen { width: 100%; width: 100vw; height: 100%; height: 100vh; height: 100dvh; display: grid; grid-template-rows: minmax(0, 17%) minmax(0, 73%) minmax(0, 10%); }
-.header { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #073467; color: white; text-align: center; padding: 0 2vw; }
+body { overflow: hidden; background: var(--surface); font-family: "Yu Gothic", Meiryo, sans-serif; color: var(--ink); }
+.screen {
+  width: 100vw; height: 100vh; height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(0, 17%) minmax(0, 73%) minmax(0, 10%);
+  background: var(--surface);
+}
+.header {
+  min-height: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 0 2vw; background: #e5f1f8;
+  border-bottom: 2px solid var(--panel-edge); color: var(--ink);
+}
 .prefecture { font-size: clamp(18px, 2.5vh, 38px); font-weight: 800; line-height: 1.15; }
 .title { margin: .08em 0 0; font-size: clamp(32px, 5.3vh, 78px); font-weight: 900; line-height: 1.12; white-space: nowrap; }
 .content { min-height: 0; display: grid; grid-template-columns: minmax(0, 61%) minmax(0, 39%); }
-.status { min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1vh 1.5vw; background: linear-gradient(155deg, #154477, #071a33); color: white; }
-.level { max-width: 100%; border: 3px solid rgba(255,255,255,.8); border-radius: 14px; padding: .08em .65em; background: #737b88; color: white; }
+.status {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+  padding: 1vh 1.5vw; background: linear-gradient(145deg, #f8fbfe, var(--panel));
+  color: var(--ink);
+}
+.level {
+  max-width: 100%; border: 3px solid #c1d2df; border-radius: 14px;
+  padding: .08em .65em; background: #d9e3eb; color: var(--ink);
+}
 .level-label { font-size: clamp(38px, 7.2vh, 100px); font-weight: 900; line-height: 1.15; white-space: nowrap; }
-.level-alert { background: #d62828; } .level-warning { background: #c75b0a; } .level-watch { background: #9b6a00; } .level-normal { background: #167047; } .level-unknown, .level-loading { background: #737b88; }
+.level-alert { background: #bf2d36; border-color: #a7212a; color: white; }
+.level-warning { background: #a84c00; border-color: #893c00; color: white; }
+.level-watch { background: #f8df86; border-color: #a47700; color: #352800; }
+.level-normal { background: #196944; border-color: #125135; color: white; }
+.level-unknown, .level-loading { background: #d9e3eb; border-color: #b9cad7; color: var(--ink); }
 .value { min-width: 0; max-width: 100%; display: flex; justify-content: center; align-items: baseline; line-height: 1.05; margin-top: .5vh; white-space: nowrap; }
 #value { font-size: clamp(76px, 17vh, 220px); font-weight: 900; font-variant-numeric: tabular-nums; }
 .unit { font-size: clamp(26px, 5vh, 64px); font-weight: 800; margin-left: .1em; }
 .caption { font-size: clamp(24px, 4vh, 56px); font-weight: 800; line-height: 1.2; white-space: nowrap; }
-.trend { margin-top: 1vh; color: #ffdb53; font-size: clamp(18px, 2.8vh, 36px); font-weight: 800; line-height: 1.2; }
-.updated, .data-state { margin-top: .35vh; font-size: clamp(13px, 1.9vh, 24px); line-height: 1.2; color: #dce9f7; }
-.measures { min-width: 0; min-height: 0; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.2vh; padding: 1.4vh 1.3vw; background: #eef2f7; }
-.measure { min-width: 0; min-height: 0; display: flex; align-items: center; gap: 1.2vw; padding: .6vh 1vw; background: white; border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.10); }
+.trend { margin-top: 1vh; color: #185c88; font-size: clamp(18px, 2.8vh, 36px); font-weight: 800; line-height: 1.2; }
+.updated, .data-state { margin-top: .35vh; font-size: clamp(13px, 1.9vh, 24px); line-height: 1.2; color: var(--muted); }
+.measures { min-width: 0; min-height: 0; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.2vh; padding: 1.4vh 1.3vw; background: #edf4f8; }
+.measure { min-width: 0; min-height: 0; display: flex; align-items: center; gap: 1.2vw; padding: .6vh 1vw; background: white; border: 1px solid #dbe7ef; border-radius: 14px; box-shadow: 0 3px 12px rgba(20, 60, 90, .09); }
 .measure img { display: block; flex: 0 0 auto; width: min(13vh, 29%); height: min(13vh, 90%); object-fit: contain; }
-.measure-title { min-width: 0; font-size: clamp(26px, 4.3vh, 58px); font-weight: 900; line-height: 1.12; color: #142033; white-space: nowrap; }
-footer { min-width: 0; min-height: 0; display: flex; justify-content: center; align-items: center; padding: .4vh 2vw; background: #ffd21a; color: #172032; text-align: center; font-size: clamp(20px, 3.3vh, 46px); font-weight: 900; line-height: 1.2; }
-/* 狭い埋め込み枠でも3項目を維持し、文字が切れないよう縮小する。 */
-@media (max-width: 900px) { .title { font-size: clamp(23px, 4.7vw, 46px); } .measure-title { font-size: clamp(18px, 3.2vw, 36px); } .caption { font-size: clamp(17px, 3.2vw, 34px); } footer { font-size: clamp(16px, 2.6vw, 29px); } }
-@media (max-height: 600px) { .status { padding: .5vh 1vw; } .level-label { font-size: 6.5vh; } #value { font-size: 15vh; } .trend { margin-top: .3vh; } .measure { padding: .2vh 1vw; } }
+.measure-title { min-width: 0; font-size: clamp(26px, 4.3vh, 58px); font-weight: 900; line-height: 1.12; color: var(--ink); white-space: nowrap; }
+footer { min-width: 0; min-height: 0; display: flex; justify-content: center; align-items: center; padding: .4vh 2vw; background: var(--yellow); color: #252c36; text-align: center; font-size: clamp(20px, 3.3vh, 46px); font-weight: 900; line-height: 1.2; }
+@media (max-width: 900px) {
+  .title { font-size: clamp(23px, 4.7vw, 46px); }
+  .measure-title { font-size: clamp(18px, 3.2vw, 36px); }
+  .caption { font-size: clamp(17px, 3.2vw, 34px); }
+  footer { font-size: clamp(16px, 2.6vw, 29px); }
+}
+@media (max-height: 600px) {
+  .status { padding: .5vh 1vw; }
+  .level-label { font-size: 6.5vh; }
+  #value { font-size: 15vh; }
+  .trend { margin-top: .3vh; }
+  .measure { padding: .2vh 1vw; }
+}
