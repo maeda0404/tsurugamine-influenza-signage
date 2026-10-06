@@ -1,0 +1,10 @@
+{
+  "name": "kanagawa-influenza-signage",
+  "version": "1.0.0",
+  "status": "candidate",
+  "createdAt": "2026-10-06T14:13:19+09:00",
+  "lastUpdatedAt": "2026-10-06T14:13:19+09:00",
+  "displaySiteName": false,
+  "realDataConnected": false,
+  "deviceTest": "not-run"
+}
