@@ -1,0 +1,9 @@
+{
+  "region": "横浜市",
+  "year": null,
+  "week": null,
+  "perSentinel": null,
+  "metric": "定点当たり報告数",
+  "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261001-influenza_2026.csv",
+  "status": "未取得"
+}
