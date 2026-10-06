@@ -1,62 +1,56 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#051d3a">
     <title>神奈川県 インフルエンザ流行状況</title>
-
-    <linktyle.css
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
     <div class="screen">
-
         <header>
-
-            <div class="prefecture">
-                神奈川県
-            </div>
-
-            <div class="title">
-                インフルエンザ流行状況
-            </div>
-
+            <div class="prefecture">神奈川県</div>
+            <div class="title">インフルエンザ流行状況</div>
         </header>
 
         <main>
-
-            <section class="status">
-
-                <div class="level" id="level">
-                    確認中
-                </div>
+            <section class="status" aria-live="polite">
+                <div class="level" id="level">確認中</div>
 
                 <div class="value">
-
-                    <span id="value">
-                        --
-                    </span>
-
-                    <span class="unit">
-                        人
-                    </span>
-
+                    <span id="value">--</span>
+                    <span class="unit">人</span>
                 </div>
 
-                <div class="caption">
-                    定点当たり報告数
-                </div>
-
-                <div class="update">
-                    公開データ接続前
-                </div>
-
+                <div class="caption">定点当たり報告数</div>
+                <div class="update" id="update">公開データ接続前</div>
             </section>
 
-            <section class="measures">
+            <section class="measures" aria-label="感染対策3つの基本">
+                <div class="measure">
+                    <img src="assets/handwash.png" alt="手洗いのイラスト">
+                    <div class="measure-title">手洗い</div>
+                </div>
 
                 <div class="measure">
+                    <img src="assets/healthcheck.png" alt="体調報告のイラスト">
+                    <div class="measure-title">体調報告</div>
+                </div>
 
-           
+                <div class="measure">
+                    <img src="assets/ventilation.png" alt="換気のイラスト">
+                    <div class="measure-title">換気</div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            発熱・咳・のどの痛みなど、体調に変化がある場合は無理をせず報告してください
+        </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
