@@ -1,52 +1,22 @@
-/* Yokohama flu signage: status colors and readable typography.
-   Keep the existing 4:3 layout, 2x2 illustrations, and data logic. */
-.status.status-unknown { background: #e8f2f9; color: #183047; }
-.status.status-normal  { background: #e1f3e8; color: #143c2a; }
-.status.status-spread  { background: #ffc58f; color: #36200e; }
-.status.status-warning { background: #f7cbd0; color: #4b1820; }
-.status.status-alert   { background: #e4d1f3; color: #351b4a; }
-
-.status .level {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
-  color: inherit;
+/* Yokohama influenza signage: rounded status card with level-colored outline. */
+.status {
+  box-sizing: border-box;
+  border: clamp(5px, .7vh, 10px) solid #7992a4;
+  border-radius: clamp(22px, 3vh, 44px);
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
 }
-.status .level-label {
-  color: inherit;
-  font-size: clamp(44px, 8.4vh, 112px);
-  font-weight: 900;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-.status #value {
-  font-size: clamp(92px, 19vh, 245px);
-  line-height: 1.02;
-}
+.status.status-unknown { background: #e8f2f9; border-color: #7992a4; color: #183047; }
+.status.status-normal  { background: #e1f3e8; border-color: #158044; color: #143c2a; }
+.status.status-spread  { background: #ffc58f; border-color: #d55a00; color: #36200e; }
+.status.status-warning { background: #f7cbd0; border-color: #c32135; color: #4b1820; }
+.status.status-alert   { background: #e4d1f3; border-color: #68248f; color: #351b4a; }
+.status .level { background: transparent; border: 0; box-shadow: none; padding: 0; color: inherit; }
+.status .level-label { color: inherit; font-size: clamp(44px, 8.4vh, 112px); font-weight: 900; line-height: 1.1; white-space: nowrap; }
+.status #value { font-size: clamp(92px, 19vh, 245px); line-height: 1.02; }
 .status .unit { font-size: clamp(34px, 5.8vh, 76px); }
-.status .caption {
-  font-size: clamp(29px, 4.7vh, 62px);
-  font-weight: 900;
-  line-height: 1.15;
-  white-space: nowrap;
-}
-.status .trend {
-  color: inherit;
-  font-size: clamp(23px, 3.7vh, 50px);
-  font-weight: 900;
-  line-height: 1.18;
-  margin-top: 1.2vh;
-  white-space: nowrap;
-}
-.status .updated, .status .data-state {
-  color: inherit;
-  font-size: clamp(19px, 2.6vh, 34px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-top: .6vh;
-  white-space: nowrap;
-}
+.status .caption { font-size: clamp(29px, 4.7vh, 62px); font-weight: 900; line-height: 1.15; white-space: nowrap; }
+.status .trend { color: inherit; font-size: clamp(23px, 3.7vh, 50px); font-weight: 900; line-height: 1.18; margin-top: 1.2vh; white-space: nowrap; }
+.status .updated, .status .data-state { color: inherit; font-size: clamp(19px, 2.6vh, 34px); font-weight: 700; line-height: 1.2; margin-top: .6vh; white-space: nowrap; }
 @media (max-width: 900px) {
   .status .level-label { font-size: clamp(28px, 5vw, 60px); }
   .status #value { font-size: clamp(56px, 12vw, 145px); }
