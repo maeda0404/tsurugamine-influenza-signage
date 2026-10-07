@@ -1,9 +1,16 @@
-/* 既存の白背景・4:3全面表示CSSの末尾に追加。区分は色と文字で示す。 */
-.level{padding:.06em .48em;border-width:3px}
-.level-label{font-size:clamp(31px,5vh,70px)}
-.level-unknown{background:#d9e3eb;border-color:#b9cad7;color:#183047}
-.level-normal{background:#e6f5ed;border-color:#207548;color:#145434}
-.level-spread{background:#fff0c2;border-color:#a56d00;color:#624200}
-.level-warning{background:#fbd6a8;border-color:#b45200;color:#773600}
-.level-alert{background:#f8c7c7;border-color:#b6272e;color:#821920}
-.trend{font-size:clamp(21px,3.3vh,43px);font-weight:900}
+/* Existing css/style.css remains unchanged. The left status panel is color coded. */
+.status { transition: background-color .3s ease, color .3s ease; }
+.status.status-unknown { background: #e8f2f9; color: #183047; }
+.status.status-normal { background: #e5f3ec; color: #153e2a; }
+.status.status-spread { background: #f57912; color: #241600; }
+.status.status-warning { background: #c62b35; color: #ffffff; }
+.status.status-alert { background: #64268b; color: #ffffff; }
+.status.status-spread .trend, .status.status-spread .updated,
+.status.status-spread .data-state { color: #241600; }
+.status.status-warning .trend, .status.status-warning .updated,
+.status.status-warning .data-state,
+.status.status-alert .trend, .status.status-alert .updated,
+.status.status-alert .data-state { color: #ffffff; }
+.status .level { background: transparent; border: 0; box-shadow: none; padding: 0; color: inherit; }
+.status .level-label { font-size: clamp(40px, 7vh, 96px); font-weight: 900; line-height: 1.1; }
+.status .trend { font-weight: 900; }
