@@ -3,7 +3,9 @@
   "year": 2026,
   "week": 39,
   "perSentinel": 9.45,
+  "previousPerSentinel": 16.57,
+  "difference": -7.12,
   "metric": "定点当たり報告数",
   "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261001-influenza_2026.csv",
-  "updatedAt": "2026-10-07T08:50:35+09:00"
+  "updatedAt": "2026-10-07T09:11:02+09:00"
 }
