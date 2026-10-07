@@ -1,0 +1,9 @@
+/* 既存の白背景・4:3全面表示CSSの末尾に追加。区分は色と文字で示す。 */
+.level{padding:.06em .48em;border-width:3px}
+.level-label{font-size:clamp(31px,5vh,70px)}
+.level-unknown{background:#d9e3eb;border-color:#b9cad7;color:#183047}
+.level-normal{background:#e6f5ed;border-color:#207548;color:#145434}
+.level-spread{background:#fff0c2;border-color:#a56d00;color:#624200}
+.level-warning{background:#fbd6a8;border-color:#b45200;color:#773600}
+.level-alert{background:#f8c7c7;border-color:#b6272e;color:#821920}
+.trend{font-size:clamp(21px,3.3vh,43px);font-weight:900}
