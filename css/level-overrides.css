@@ -1,22 +1,54 @@
-/* Yokohama influenza signage: emphasize the level separately inside the rounded card. */
-.status { box-sizing: border-box; border: clamp(5px,.7vh,10px) solid #7992a4; border-radius: clamp(22px,3vh,44px); }
-.status.status-unknown { background:#e8f2f9; border-color:#7992a4; color:#183047; }
-.status.status-normal { background:#e1f3e8; border-color:#158044; color:#143c2a; }
-.status.status-spread { background:#ffc58f; border-color:#d55a00; color:#36200e; }
-.status.status-warning { background:#f7cbd0; border-color:#c32135; color:#4b1820; }
-.status.status-alert { background:#e4d1f3; border-color:#68248f; color:#351b4a; }
-/* The level itself is a separate, high-contrast band. No blinking or animation. */
-.status .level { display:block; width:min(92%, 16em); max-width:100%; padding:.10em .35em; border:clamp(3px,.4vh,6px) solid currentColor; border-radius:clamp(14px,2vh,28px); box-shadow:0 .12em .3em rgba(0,0,0,.13); background:#fff; color:inherit; line-height:1.1; }
-.status .level-label { display:block; font-size:clamp(40px,7.3vh,98px); font-weight:900; line-height:1.12; white-space:nowrap; color:inherit; }
-.status.status-unknown .level { background:#fff; color:#334b60; }
-.status.status-normal .level { background:#17673d; color:#fff; border-color:#0f5130; }
-.status.status-spread .level { background:#b84c00; color:#fff; border-color:#8d3700; }
-.status.status-warning .level { background:#a91e31; color:#fff; border-color:#821526; }
-.status.status-alert .level { background:#622487; color:#fff; border-color:#49166c; }
-.status #value { font-size:clamp(92px,19vh,245px); line-height:1.02; }
-.status .unit { font-size:clamp(34px,5.8vh,76px); }
-.status .caption { font-size:clamp(29px,4.7vh,62px); font-weight:900; line-height:1.15; white-space:nowrap; }
-.status .trend { color:inherit; font-size:clamp(23px,3.7vh,50px); font-weight:900; line-height:1.18; margin-top:1.2vh; white-space:nowrap; }
-.status .updated,.status .data-state { color:inherit; font-size:clamp(19px,2.6vh,34px); font-weight:700; line-height:1.2; margin-top:.6vh; white-space:nowrap; }
-@media(max-width:900px) { .status .level-label{font-size:clamp(25px,4.4vw,55px)} .status #value{font-size:clamp(56px,12vw,145px)} .status .unit{font-size:clamp(23px,4vw,48px)} .status .caption{font-size:clamp(19px,3.2vw,37px)} .status .trend{font-size:clamp(16px,2.65vw,32px)} .status .updated,.status .data-state{font-size:clamp(13px,1.8vw,24px)} }
-@media(max-height:600px) { .status .level-label{font-size:6vh} .status #value{font-size:16vh} .status .caption{font-size:4vh} .status .trend{font-size:3vh;margin-top:.5vh} .status .updated,.status .data-state{font-size:2.1vh;margin-top:.25vh} }
+/* candidate-04.4: wide level band, deliberate spacing, fresh palette.
+   Replace css/level-overrides.css. Existing DOM, JS, data and images unchanged. */
+:root{--signage-ink:#183247;--signage-muted:#425d70}
+body{background:#f7fafc;color:var(--signage-ink)}
+.header{background:#edf4f9;color:var(--signage-ink);border-bottom-color:#dce7ef}
+.content{background:#f7fafc}
+.measures{background:transparent}
+footer{background:#e8f0f7;color:var(--signage-ink);border-top:2px solid #dce7ef}
+.status{
+  --accent:#7892a6;--surface:#f0f5f9;--badge:#e4edf4;--badge-ink:#24445b;
+  box-sizing:border-box;min-width:0;min-height:0;
+  background:var(--surface);color:var(--signage-ink);
+  border:clamp(4px,.55vh,8px) solid var(--accent);
+  border-radius:clamp(22px,3vh,44px);
+  box-shadow:0 5px 18px rgba(30,57,77,.08);
+  padding:clamp(12px,2vh,28px) clamp(12px,1.4vw,30px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.status.status-unknown{--accent:#7892a6;--surface:#f0f5f9;--badge:#e4edf4;--badge-ink:#24445b}
+.status.status-normal{--accent:#27916b;--surface:#eff9f4;--badge:#d7f0e4;--badge-ink:#12583f}
+.status.status-spread{--accent:#f07824;--surface:#fff5eb;--badge:#ffe0bd;--badge-ink:#853700}
+.status.status-warning{--accent:#d33b51;--surface:#fff1f3;--badge:#ffd8df;--badge-ink:#8e1831}
+.status.status-alert{--accent:#8751b9;--surface:#f7f1fc;--badge:#e7d8f7;--badge-ink:#562680}
+.status .level{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  box-sizing:border-box;width:86%;max-width:none;
+  padding:clamp(8px,1.2vh,18px) clamp(16px,2vw,36px);
+  margin:0 0 clamp(18px,2.8vh,40px);
+  background:var(--badge);color:var(--badge-ink);
+  border:clamp(2px,.3vh,4px) solid var(--accent);
+  border-radius:clamp(16px,2vh,28px);box-shadow:none;
+}
+.status .level-label{
+  display:block;color:inherit;font-size:clamp(36px,min(7.3vh,5.6vw),98px);
+  font-weight:900;line-height:1.15;letter-spacing:.04em;white-space:nowrap;
+}
+.status .value{flex:0 0 auto;margin:0 0 clamp(10px,1.5vh,22px);color:var(--signage-ink);line-height:1.02}
+.status #value{font-size:clamp(82px,18vh,235px);font-weight:900;line-height:1.02;font-variant-numeric:tabular-nums}
+.status .unit{font-size:clamp(30px,5.5vh,72px);font-weight:800;color:var(--signage-ink)}
+.status .caption{font-size:clamp(25px,min(4.5vh,3.5vw),60px);font-weight:900;line-height:1.2;color:var(--signage-ink);white-space:nowrap}
+.status .trend{margin-top:clamp(10px,1.5vh,22px);font-size:clamp(20px,min(3.5vh,2.8vw),48px);font-weight:800;line-height:1.25;color:var(--signage-ink);white-space:nowrap}
+.status .updated,.status .data-state{margin-top:.65vh;font-size:clamp(17px,min(2.5vh,2vw),32px);font-weight:700;line-height:1.25;color:var(--signage-muted);white-space:nowrap}
+@media(max-height:600px){
+ .status{padding:8px 12px}
+ .status .level{padding:.7vh 1.4vw;margin-bottom:1.8vh}
+ .status .level-label{font-size:min(6vh,5vw)}
+ .status #value{font-size:15vh}
+ .status .unit{font-size:4.5vh}
+ .status .value{margin-bottom:1vh}
+ .status .caption{font-size:min(3.8vh,3.3vw)}
+ .status .trend{font-size:min(2.8vh,2.6vw);margin-top:.8vh}
+ .status .updated,.status .data-state{font-size:min(2vh,1.8vw);margin-top:.3vh}
+}
+@media(prefers-reduced-motion:reduce){.status,.status .level{transition:none}}
