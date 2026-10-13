@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
-URL = "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261001-influenza_2026.csv"
+URL = "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/2026_influenza.csv"
 OUT = Path(__file__).resolve().parents[1] / "data" / "status.json"
 JST = timezone(timedelta(hours=9))
 YEAR = 2026
