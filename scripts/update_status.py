@@ -31,9 +31,7 @@ def candidate_urls(today):
     for days_ago in range(SEARCH_DAYS + 1):
         published = today - timedelta(days=days_ago)
         for data_year in (published.year, published.year - 1):
-            url = (
-                f"{BASE_URL}{published:%Y%m%d}-influenza_{data_year}.csv"
-            )
+            url = f"{BASE_URL}{published:%Y%m%d}-influenza_{data_year}.csv"
             if url not in seen:
                 seen.add(url)
                 yield url, data_year
