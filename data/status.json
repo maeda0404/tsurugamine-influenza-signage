@@ -1,11 +1,11 @@
 {
   "region": "横浜市",
   "year": 2026,
-  "week": 40,
-  "perSentinel": 19.9,
-  "previousPerSentinel": 9.45,
-  "difference": 10.45,
+  "week": 42,
+  "perSentinel": 10.23,
+  "previousPerSentinel": 23.45,
+  "difference": -13.22,
   "metric": "定点当たり報告数",
-  "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261008-influenza_2026.csv",
-  "updatedAt": "2026-10-13T13:50:00+09:00"
+  "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261022_influenza_2026.csv",
+  "updatedAt": "2026-10-26T10:15:45+09:00"
 }
