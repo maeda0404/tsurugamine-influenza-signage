@@ -16,8 +16,8 @@ main,.infection-layout{min-height:0;display:grid;grid-template-columns:18vw 60vw
 .reading,.disease-value{display:flex;justify-content:center;align-items:baseline;margin-top:2.7vh;white-space:nowrap}
 .reading strong,.disease-value strong{font-size:7.2vw;line-height:.92;font-weight:700;letter-spacing:-.18vw;font-variant-numeric:tabular-nums}
 .reading span,.disease-value .unit{font-size:2.05vw;font-weight:700;margin-left:.4vw}
-.metric,.metric-label,.disease-caption{margin-top:2.5vh;font-size:1.55vw;line-height:1.15;font-weight:700}
-.trend,.disease-meta{margin-top:2.2vh;font-size:1.55vw;font-weight:700}
+.metric,.metric-label,.disease-caption{margin-top:2.5vh;font-size:1.5vw;line-height:1.15;font-weight:700}
+.trend,.disease-meta{margin-top:2.2vh;font-size:1.5vw;font-weight:700}
 .week{margin-top:.8vh;font-size:1.18vw;font-weight:700}
 .card.level-warning,.disease-card.level-warning{border-color:#d71920;background:#fff0f0}.card.level-warning .badge,.disease-card.level-warning .level-badge{background:#d71920;color:#fff}
 .card.level-advisory,.disease-card.level-advisory{border-color:#f59e0b;background:#fff6df}.card.level-advisory .badge,.disease-card.level-advisory .level-badge{background:#f59e0b;color:#173b54}
@@ -28,17 +28,48 @@ main,.infection-layout{min-height:0;display:grid;grid-template-columns:18vw 60vw
 .source{text-align:center;font-size:.82vw;color:#486b80}
 footer{display:flex;align-items:center;justify-content:center;background:#e9f3f9;border-top:2px solid #d3e2eb;font-size:1.55vw;font-weight:700;text-align:center}
 
-.trend-arrow{display:inline-block;font-size:1.25em;font-weight:900;line-height:1}.trend-arrow.up{color:#d71920}.trend-arrow.down{color:#1976d2}.trend-arrow.same{color:#2e9d5b}
-</style><script src="js/app.js?v=14" defer></script></head><body><div class="screen"><header><div id="area">横浜市</div><h1>感染症流行状況</h1></header><main><aside class="side"><img src="assets/handwash.png?v=12" alt="手洗い"><img src="assets/ventilation.png?v=12" alt="換気"></aside><section class="center" aria-live="polite"><div class="cards"><article id="influenzaCard" class="card"><h2>インフルエンザ</h2><div id="influenzaLevel" class="badge">確認中</div><div class="reading"><strong id="influenzaValue">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="influenzaTrend" class="trend">前週比較 --</div><div id="influenzaWeek" class="week">--</div></article><article id="covid19Card" class="card"><h2>新型コロナ</h2><div id="covid19Level" class="badge">確認中</div><div class="reading"><strong id="covid19Value">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="covid19Trend" class="trend">前週比較 --</div><div id="covid19Week" class="week">--</div></article></div><div class="statusline"><span id="unit">定点当たり報告数</span> ｜ <span id="dataStatus">確認中</span></div><div class="source">出典：神奈川県衛生研究所</div></section><aside class="side"><img src="assets/healthcheck.png?v=12" alt="体調報告"><img src="assets/mask.png?v=12" alt="正しいマスク着用"></aside></main><footer>体調に変化がある場合は、無理をせず報告してください</footer></div><script>
-(function(){
-  function colorTrend(id){
-    const el=document.getElementById(id); if(!el) return;
-    const text=el.textContent || '';
-    if(text.includes('↑')) el.innerHTML=text.replace('↑','<span class="trend-arrow up">↑</span>');
-    else if(text.includes('↓')) el.innerHTML=text.replace('↓','<span class="trend-arrow down">↓</span>');
-    else if(text.includes('→')) el.innerHTML=text.replace('→','<span class="trend-arrow same">→</span>');
+.trend-arrow{font-size:1.2em;font-weight:900}.trend-arrow.up{color:#d71920}.trend-arrow.down{color:#1976d2}.trend-arrow.same{color:#2e9d5b}
+</style></head><body><div class="screen"><header><div id="area">横浜市</div><h1>感染症流行状況</h1></header><main><aside class="side"><img src="assets/handwash.png?v=12" alt="手洗い"><img src="assets/ventilation.png?v=12" alt="換気"></aside><section class="center" aria-live="polite"><div class="cards"><article id="influenzaCard" class="card"><h2>インフルエンザ</h2><div id="influenzaLevel" class="badge">確認中</div><div class="reading"><strong id="influenzaValue">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="influenzaTrend" class="trend">前週比較 --</div><div id="influenzaWeek" class="week">--</div></article><article id="covid19Card" class="card"><h2>新型コロナ</h2><div id="covid19Level" class="badge">確認中</div><div class="reading"><strong id="covid19Value">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="covid19Trend" class="trend">前週比較 --</div><div id="covid19Week" class="week">--</div></article></div><div class="statusline"><span id="unit">定点当たり報告数</span> ｜ <span id="dataStatus">確認中</span></div><div class="source">出典：神奈川県衛生研究所</div></section><aside class="side"><img src="assets/healthcheck.png?v=12" alt="体調報告"><img src="assets/mask.png?v=12" alt="正しいマスク着用"></aside></main><footer>体調に変化がある場合は、無理をせず報告してください</footer></div><script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const num = v => typeof v === 'number' && Number.isFinite(v);
+  const fmt = v => num(v) ? v.toFixed(2).replace(/\.00$/,'') : '--';
+  function level(v){
+    if(!num(v)) return ['unknown','確認中'];
+    if(v >= 30) return ['warning','警報レベル'];
+    if(v >= 10) return ['advisory','注意報レベル'];
+    if(v >= 1) return ['epidemic','流行中'];
+    return ['normal','非流行'];
   }
-  function recolor(){colorTrend('influenzaTrend');colorTrend('covid19Trend');}
-  addEventListener('DOMContentLoaded',()=>{recolor();new MutationObserver(recolor).observe(document.body,{subtree:true,childList:true,characterData:true});});
+  function trend(item){
+    if(!num(item.previousValue) || !num(item.change)) return '前週比較 --';
+    const cls = item.change > 0 ? 'up' : item.change < 0 ? 'down' : 'same';
+    const arrow = item.change > 0 ? '↑' : item.change < 0 ? '↓' : '→';
+    const sign = item.change > 0 ? '+' : '';
+    return `前週 ${fmt(item.previousValue)} <span class="trend-arrow ${cls}">${arrow}</span> ${sign}${fmt(item.change)}`;
+  }
+  function render(prefix,item){
+    const card=$(prefix+'Card');
+    const [key,label]=level(item.value);
+    $(prefix+'Value').textContent=fmt(item.value);
+    $(prefix+'Level').textContent=label;
+    $(prefix+'Trend').innerHTML=trend(item);
+    $(prefix+'Week').textContent=Number.isInteger(item.week)?`第${item.week}週`:'--';
+    card.classList.remove('level-warning','level-advisory','level-epidemic','level-normal','level-unknown');
+    card.classList.add('level-'+key);
+  }
+  async function load(){
+    try{
+      const r=await fetch(`data/status.json?v=15&t=${Date.now()}`,{cache:'no-store'});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d=await r.json();
+      if(!d.influenza || !d.covid19) throw new Error('status.json schema mismatch');
+      render('influenza',d.influenza); render('covid19',d.covid19);
+      if(d.area) $('area').textContent=d.area;
+      $('dataStatus').textContent='データ更新済み';
+    }catch(e){console.error('status load failed',e);$('dataStatus').textContent='データ取得失敗';}
+  }
+  load(); setInterval(load,10*60*1000);
 })();
 </script></body></html>
