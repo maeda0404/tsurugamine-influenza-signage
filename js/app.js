@@ -16,15 +16,13 @@
     return {key:'normal',label:'非流行'};
   }
 
-  // No equivalent COVID threshold is defined here. Show trend only.
-  function covidState(item){
-    if(!n(item?.value)) return {key:'unknown',label:'確認中'};
-    if(n(item.change)){
-      if(item.change>0) return {key:'increase',label:'前週より増加'};
-      if(item.change<0) return {key:'decrease',label:'前週より減少'};
-      return {key:'same',label:'前週と同水準'};
-    }
-    return {key:'neutral',label:'定点報告'};
+  // User-selected display rule: apply the same 4-step thresholds to COVID-19.
+  function covidLevel(v){
+    if(!n(v)) return {key:'unknown',label:'確認中'};
+    if(v>=30) return {key:'warning',label:'警報レベル'};
+    if(v>=10) return {key:'advisory',label:'注意報レベル'};
+    if(v>=1) return {key:'epidemic',label:'流行中'};
+    return {key:'normal',label:'非流行'};
   }
 
   function normalize(item,label){
@@ -46,7 +44,7 @@
     try{
       const r=await fetch(`${DATA_URL}?t=${Date.now()}`,{cache:'no-store'}); if(!r.ok)throw new Error(`HTTP ${r.status}`); const d=await r.json();
       const flu=normalize(d.influenza,'インフルエンザ'); const covid=normalize(d.covid19,'新型コロナ'); if(!flu||!covid||!n(flu.value)||!n(covid.value))throw new Error('invalid status.json');
-      renderCard('influenza',flu,influenzaLevel(flu.value)); renderCard('covid19',covid,covidState(covid)); setText('area',d.area||'横浜市'); setText('unit',d.unit||'定点当たり報告数'); setText('dataStatus','データ更新済み');
+      renderCard('influenza',flu,influenzaLevel(flu.value)); renderCard('covid19',covid,covidLevel(covid.value)); setText('area',d.area||'横浜市'); setText('unit',d.unit||'定点当たり報告数'); setText('dataStatus','データ更新済み');
     }catch(e){console.error(e);setText('dataStatus','最新データを取得できません');}
   }
   load(); setInterval(load,REFRESH_MS);
