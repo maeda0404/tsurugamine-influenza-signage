@@ -1,1 +1,31 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>横浜市 感染症流行状況</title><link rel="stylesheet" href="css/signage-100.css?v=12"><script src="js/app.js?v=12" defer></script></head><body><div class="screen"><header><div id="area">横浜市</div><h1>感染症流行状況</h1></header><main><aside class="side"><img src="assets/handwash.png?v=12" alt="手洗い"><img src="assets/ventilation.png?v=12" alt="換気"></aside><section class="center" aria-live="polite"><div class="cards"><article id="influenzaCard" class="card"><h2>インフルエンザ</h2><div id="influenzaLevel" class="badge">確認中</div><div class="reading"><strong id="influenzaValue">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="influenzaTrend" class="trend">前週比較 --</div><div id="influenzaWeek" class="week">--</div></article><article id="covid19Card" class="card"><h2>新型コロナ</h2><div id="covid19Level" class="badge">確認中</div><div class="reading"><strong id="covid19Value">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="covid19Trend" class="trend">前週比較 --</div><div id="covid19Week" class="week">--</div></article></div><div class="statusline"><span id="unit">定点当たり報告数</span> ｜ <span id="dataStatus">確認中</span></div><div class="source">出典：神奈川県衛生研究所</div></section><aside class="side"><img src="assets/healthcheck.png?v=12" alt="体調報告"><img src="assets/mask.png?v=12" alt="正しいマスク着用"></aside></main><footer>体調に変化がある場合は、無理をせず報告してください</footer></div></body></html>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>横浜市 感染症流行状況</title><style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f9fc;color:#173b54;font-family:"Meiryo","メイリオ","Yu Gothic","游ゴシック",sans-serif}
+.screen{width:100vw;height:100vh;display:grid;grid-template-rows:13vh 79vh 8vh}
+header,.header{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#e9f3f9;border-bottom:2px solid #d3e2eb;position:relative;z-index:2}
+header #area,.header .prefecture,#area{font-size:1.8vw;font-weight:700;line-height:1}
+header h1,.header .title{margin:.6vh 0 0;font-size:3vw;line-height:1;font-weight:700}
+main,.infection-layout{min-height:0;display:grid;grid-template-columns:18vw 60vw 18vw;gap:2vw;padding:2.3vh 1vw 1.6vh}
+.side,.side-images{min-height:0;display:grid;grid-template-rows:1fr 1fr;place-items:center;gap:1.5vh;padding:0}
+.side img,.side-images img,.measure-image{display:block;width:min(14.5vw,27vh);height:min(14.5vw,27vh);max-width:none;max-height:none;object-fit:contain}
+.center,.infection-main,.status{min-width:0;min-height:0;border:4px solid #7892a4;border-radius:1.8vw;background:#f8fbfd;padding:2.2vh 1.5vw;display:flex;flex-direction:column;justify-content:center;gap:1.5vh;overflow:hidden}
+.cards,.disease-grid{min-width:0;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:1.4vw;width:100%}
+.card,.disease-card{min-width:0;height:61vh;border:5px solid #7d96a7;border-radius:1.55vw;text-align:center;padding:2.4vh 1.2vw;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff}
+.card h2,.disease-card h2,.disease-name{margin:0 0 1.7vh;font-size:2.25vw;line-height:1.1;font-weight:700}
+.badge,.level-badge{display:inline-block;min-width:72%;padding:.7vh 1vw;border-radius:999px;background:#dce7ed;font-size:1.55vw;line-height:1.15;font-weight:700}
+.reading,.disease-value{display:flex;justify-content:center;align-items:baseline;margin-top:2.7vh;white-space:nowrap}
+.reading strong,.disease-value strong{font-size:7.2vw;line-height:.92;font-weight:700;letter-spacing:-.18vw;font-variant-numeric:tabular-nums}
+.reading span,.disease-value .unit{font-size:2.05vw;font-weight:700;margin-left:.4vw}
+.metric,.metric-label,.disease-caption{margin-top:2.5vh;font-size:1.7vw;line-height:1.15;font-weight:700}
+.trend,.disease-meta{margin-top:2.2vh;font-size:1.25vw;font-weight:700}
+.week{margin-top:.8vh;font-size:1.18vw;font-weight:700}
+.card.level-warning,.disease-card.level-warning{border-color:#d71920;background:#fff0f0}.card.level-warning .badge,.disease-card.level-warning .level-badge{background:#d71920;color:#fff}
+.card.level-advisory,.disease-card.level-advisory{border-color:#f59e0b;background:#fff6df}.card.level-advisory .badge,.disease-card.level-advisory .level-badge{background:#f59e0b;color:#173b54}
+.card.level-epidemic,.disease-card.level-epidemic{border-color:#d8b928;background:#fffbe6}.card.level-epidemic .badge,.disease-card.level-epidemic .level-badge{background:#ffe064;color:#173b54}
+.card.level-normal,.disease-card.level-normal{border-color:#3ca36b;background:#effaf3}.card.level-normal .badge,.disease-card.level-normal .level-badge{background:#3ca36b;color:#fff}
+.legend{display:none!important}.updated,.source-row{display:none!important}
+.statusline,.data-state{text-align:center;margin-top:.4vh;font-size:1.05vw;font-weight:700}
+.source{text-align:center;font-size:.82vw;color:#486b80}
+footer{display:flex;align-items:center;justify-content:center;background:#e9f3f9;border-top:2px solid #d3e2eb;font-size:1.55vw;font-weight:700;text-align:center}
+
+</style><script src="js/app.js?v=13" defer></script></head><body><div class="screen"><header><div id="area">横浜市</div><h1>感染症流行状況</h1></header><main><aside class="side"><img src="assets/handwash.png?v=12" alt="手洗い"><img src="assets/ventilation.png?v=12" alt="換気"></aside><section class="center" aria-live="polite"><div class="cards"><article id="influenzaCard" class="card"><h2>インフルエンザ</h2><div id="influenzaLevel" class="badge">確認中</div><div class="reading"><strong id="influenzaValue">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="influenzaTrend" class="trend">前週比較 --</div><div id="influenzaWeek" class="week">--</div></article><article id="covid19Card" class="card"><h2>新型コロナ</h2><div id="covid19Level" class="badge">確認中</div><div class="reading"><strong id="covid19Value">--</strong><span>人</span></div><div class="metric">定点当たり報告数</div><div id="covid19Trend" class="trend">前週比較 --</div><div id="covid19Week" class="week">--</div></article></div><div class="statusline"><span id="unit">定点当たり報告数</span> ｜ <span id="dataStatus">確認中</span></div><div class="source">出典：神奈川県衛生研究所</div></section><aside class="side"><img src="assets/healthcheck.png?v=12" alt="体調報告"><img src="assets/mask.png?v=12" alt="正しいマスク着用"></aside></main><footer>体調に変化がある場合は、無理をせず報告してください</footer></div></body></html>
