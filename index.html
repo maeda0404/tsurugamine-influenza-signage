@@ -4,31 +4,77 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#e5f1f8">
-<title>横浜市 インフルエンザ流行状況</title>
-<link rel="stylesheet" href="css/style.css?v=5">
-<link rel="stylesheet" href="css/level-overrides.css?v=5">
-<script src="js/app.js?v=5" defer></script>
+<title>横浜市 感染症流行状況</title>
+<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/level-overrides.css?v=6">
+<style>
+  .status { gap: clamp(8px, 1.3vh, 18px); }
+  .disease-grid {
+    width: 100%; min-height: 0; display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(10px, 1.2vw, 20px);
+  }
+  .disease-card {
+    min-width: 0; padding: clamp(12px, 1.5vh, 22px);
+    border: 3px solid #7894a8; border-radius: 24px;
+    background: #fff;
+  }
+  .disease-card.covid { border-color: #3978b8; background: #f5faff; }
+  .disease-name { margin: 0 0 .35em; font-size: clamp(24px, 4vh, 54px); line-height: 1.1; font-weight: 900; }
+  .disease-value { display: flex; justify-content: center; align-items: baseline; white-space: nowrap; }
+  .disease-value strong { font-size: clamp(54px, 11vh, 140px); line-height: 1; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .disease-value .unit { font-size: clamp(20px, 3.5vh, 46px); }
+  .disease-caption { font-size: clamp(16px, 2.4vh, 31px); font-weight: 800; }
+  .disease-meta { margin-top: .45em; font-size: clamp(15px, 2.1vh, 28px); line-height: 1.3; font-weight: 800; }
+  .source-row { font-size: clamp(12px, 1.6vh, 21px); line-height: 1.3; }
+  .source-row a { color: #174f7a; }
+  #dataStatus { font-weight: 800; }
+  @media (max-width: 760px) {
+    .disease-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="js/app.js?v=6" defer></script>
 </head>
 <body>
 <div class="screen">
-<header class="header"><div class="prefecture">横浜市</div><h1 class="title">インフルエンザ流行状況</h1></header>
+<header class="header">
+  <div id="area" class="prefecture">横浜市</div>
+  <h1 class="title">感染症流行状況</h1>
+</header>
 <main class="content">
-<section class="status status-unknown" aria-label="横浜市のインフルエンザ流行状況" aria-live="polite">
-  <div id="level" class="level level-unknown"><span class="level-label">確認中</span></div>
-  <div class="value"><span id="value">--</span><span class="unit">人</span></div>
-  <div class="caption">定点当たり報告数</div>
-  <div id="trend" class="trend">先週比：確認中</div>
-  <div id="updated" class="updated">対象週：確認中</div>
-  <div class="data-state">出典：神奈川県衛生研究所（週別CSV）</div>
+<section class="status" aria-label="横浜市のインフルエンザと新型コロナの流行状況" aria-live="polite">
+  <div class="disease-grid">
+    <article class="disease-card influenza">
+      <h2 class="disease-name">インフルエンザ</h2>
+      <div class="disease-value"><strong id="influenzaValue">--</strong><span class="unit">人</span></div>
+      <div class="disease-caption">定点当たり報告数</div>
+      <div id="influenzaTrend" class="disease-meta">前週比較 --</div>
+      <div id="influenzaWeek" class="disease-meta">--</div>
+      <div id="influenzaPublished" class="updated">公表日：--</div>
+      <div class="source-row"><a id="influenzaSource" href="#" target="_blank" rel="noopener noreferrer" hidden>公式CSV</a></div>
+    </article>
+    <article class="disease-card covid">
+      <h2 class="disease-name">新型コロナ</h2>
+      <div class="disease-value"><strong id="covid19Value">--</strong><span class="unit">人</span></div>
+      <div class="disease-caption">定点当たり報告数</div>
+      <div id="covid19Trend" class="disease-meta">前週比較 --</div>
+      <div id="covid19Week" class="disease-meta">--</div>
+      <div id="covid19Published" class="updated">公表日：--</div>
+      <div class="source-row"><a id="covid19Source" href="#" target="_blank" rel="noopener noreferrer" hidden>公式CSV</a></div>
+    </article>
+  </div>
+  <div class="data-state">単位：<span id="unit">定点当たり報告数</span>｜<span id="dataStatus">確認中</span></div>
+  <div class="source-row">出典：神奈川県衛生研究所（週別CSV）</div>
 </section>
 <section class="measures" aria-label="感染対策：手洗い、体調報告、換気、正しいマスク着用">
-  <img class="measure-image" src="assets/handwash.png?v=5" alt="手洗い">
-  <img class="measure-image" src="assets/healthcheck.png?v=5" alt="体調報告">
-  <img class="measure-image" src="assets/ventilation.png?v=5" alt="換気">
-  <img class="measure-image" src="assets/mask.png?v=5" alt="正しいマスク着用">
+  <img class="measure-image" src="assets/handwash.png?v=6" alt="手洗い">
+  <img class="measure-image" src="assets/healthcheck.png?v=6" alt="体調報告">
+  <img class="measure-image" src="assets/ventilation.png?v=6" alt="換気">
+  <img class="measure-image" src="assets/mask.png?v=6" alt="正しいマスク着用">
 </section>
 </main>
 <footer>体調に変化がある場合は、無理をせず報告してください</footer>
 </div>
 <noscript><div class="noscript">JavaScriptが無効です。流行状況は公表元でご確認ください。</div></noscript>
-</body></html>
+</body>
+</html>
