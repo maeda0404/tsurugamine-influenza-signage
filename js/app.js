@@ -1,51 +1,129 @@
 (() => {
   'use strict';
-  const DATA_URL='./data/status.json';
-  const REFRESH_MS=10*60*1000;
-  const $=id=>document.getElementById(id);
-  const setText=(id,v)=>{const e=$(id); if(e)e.textContent=v;};
-  const n=v=>typeof v==='number'&&Number.isFinite(v);
-  const fmt=v=>n(v)?v.toFixed(2).replace(/\.00$/,''):'--';
 
-  // Approved legacy influenza thresholds: >=30 warning, >=10 advisory, >=1 epidemic, <1 non-epidemic.
-  function influenzaLevel(v){
-    if(!n(v)) return {key:'unknown',label:'確認中'};
-    if(v>=30) return {key:'warning',label:'警報レベル'};
-    if(v>=10) return {key:'advisory',label:'注意報レベル'};
-    if(v>=1) return {key:'epidemic',label:'流行中'};
-    return {key:'normal',label:'非流行'};
-  }
+  const DATA_URL = 'data/status.json';
+  const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+  const CACHE_KEY = 'tsurugamine-infection-status-v2';
 
-  // User-selected display rule: apply the same 4-step thresholds to COVID-19.
-  function covidLevel(v){
-    if(!n(v)) return {key:'unknown',label:'確認中'};
-    if(v>=30) return {key:'warning',label:'警報レベル'};
-    if(v>=10) return {key:'advisory',label:'注意報レベル'};
-    if(v>=1) return {key:'epidemic',label:'流行中'};
-    return {key:'normal',label:'非流行'};
+  const byId = (id) => document.getElementById(id);
+  const isFiniteNumber = (value) => typeof value === 'number' && Number.isFinite(value);
+  const formatNumber = (value) => isFiniteNumber(value)
+    ? value.toFixed(2).replace(/\.00$/, '')
+    : '--';
+
+  function classify(value) {
+    if (!isFiniteNumber(value)) return { key: 'unknown', label: '確認中' };
+    if (value >= 30) return { key: 'warning', label: '警報レベル' };
+    if (value >= 10) return { key: 'advisory', label: '注意報レベル' };
+    if (value >= 1) return { key: 'epidemic', label: '流行中' };
+    return { key: 'normal', label: '非流行' };
   }
 
-  function normalize(item,label){
-    if(!item||typeof item!=='object')return null;
-    return {label:item.label||label,week:Number(item.week),value:Number(item.value),previousValue:item.previousValue==null?null:Number(item.previousValue),change:item.change==null?null:Number(item.change),sourceUrl:item.sourceUrl||'',publishedDate:item.publishedDate||''};
+  function normalizeItem(item) {
+    if (!item || typeof item !== 'object') return null;
+    return {
+      week: Number(item.week),
+      value: Number(item.value),
+      previousValue: item.previousValue == null ? null : Number(item.previousValue),
+      change: item.change == null ? null : Number(item.change)
+    };
   }
-  function trend(item){
-    if(!n(item.previousValue)||!n(item.change))return '前週比較 --';
-    const a=item.change>0?'↑':item.change<0?'↓':'→';
-    const s=item.change>0?'+':'';
-    return `前週 ${fmt(item.previousValue)} ${a} ${s}${fmt(item.change)}`;
+
+  function validateStatus(data) {
+    if (!data || typeof data !== 'object') throw new Error('status.json is not an object');
+    const influenza = normalizeItem(data.influenza);
+    const covid19 = normalizeItem(data.covid19);
+    if (!influenza || !covid19) throw new Error('required disease data is missing');
+    if (!isFiniteNumber(influenza.value) || !isFiniteNumber(covid19.value)) {
+      throw new Error('disease values are invalid');
+    }
+    return { ...data, influenza, covid19 };
   }
-  function renderCard(prefix,item,state){
-    setText(prefix+'Value',fmt(item.value)); setText(prefix+'Week',Number.isInteger(item.week)?`第${item.week}週`:'--'); setText(prefix+'Trend',trend(item)); setText(prefix+'Published',item.publishedDate||'--'); setText(prefix+'Level',state.label);
-    const card=$(prefix+'Card'); if(card){card.dataset.level=state.key; card.classList.remove('level-warning','level-advisory','level-epidemic','level-normal','level-increase','level-decrease','level-same','level-neutral','level-unknown'); card.classList.add('level-'+state.key);}
-    const link=$(prefix+'Source'); if(link&&item.sourceUrl){link.href=item.sourceUrl;link.hidden=false;}
+
+  function trendMarkup(item) {
+    if (!isFiniteNumber(item.previousValue) || !isFiniteNumber(item.change)) {
+      return '前週比較 --';
+    }
+
+    let arrow = '→';
+    let arrowClass = 'steady';
+    if (item.change > 0) {
+      arrow = '↑';
+      arrowClass = 'increase';
+    } else if (item.change < 0) {
+      arrow = '↓';
+      arrowClass = 'decrease';
+    }
+
+    const sign = item.change > 0 ? '+' : '';
+    return `前週 ${formatNumber(item.previousValue)} <span class="trend-arrow ${arrowClass}" aria-label="${arrowClass === 'increase' ? '増加' : arrowClass === 'decrease' ? '減少' : '維持'}">${arrow}</span> ${sign}${formatNumber(item.change)}`;
   }
-  async function load(){
-    try{
-      const r=await fetch(`${DATA_URL}?t=${Date.now()}`,{cache:'no-store'}); if(!r.ok)throw new Error(`HTTP ${r.status}`); const d=await r.json();
-      const flu=normalize(d.influenza,'インフルエンザ'); const covid=normalize(d.covid19,'新型コロナ'); if(!flu||!covid||!n(flu.value)||!n(covid.value))throw new Error('invalid status.json');
-      renderCard('influenza',flu,influenzaLevel(flu.value)); renderCard('covid19',covid,covidLevel(covid.value)); setText('area',d.area||'横浜市'); setText('unit',d.unit||'定点当たり報告数'); setText('dataStatus','データ更新済み');
-    }catch(e){console.error(e);setText('dataStatus','最新データを取得できません');}
+
+  function renderDisease(prefix, item) {
+    const card = byId(`${prefix}Card`);
+    const level = classify(item.value);
+
+    byId(`${prefix}Value`).textContent = formatNumber(item.value);
+    byId(`${prefix}Level`).textContent = level.label;
+    byId(`${prefix}Trend`).innerHTML = trendMarkup(item);
+    byId(`${prefix}Week`).textContent = Number.isInteger(item.week) ? `第${item.week}週` : '--';
+
+    card.classList.remove(
+      'level-warning', 'level-advisory', 'level-epidemic', 'level-normal', 'level-unknown'
+    );
+    card.classList.add(`level-${level.key}`);
   }
-  load(); setInterval(load,REFRESH_MS);
+
+  function render(data, sourceLabel) {
+    renderDisease('influenza', data.influenza);
+    renderDisease('covid19', data.covid19);
+    if (typeof data.area === 'string' && data.area.trim()) {
+      byId('area').textContent = data.area;
+    }
+    if (typeof data.unit === 'string' && data.unit.trim()) {
+      byId('unit').textContent = data.unit;
+    }
+    byId('dataStatus').textContent = sourceLabel;
+  }
+
+  function saveCache(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), data }));
+    } catch (error) {
+      console.warn('cache save failed', error);
+    }
+  }
+
+  function loadCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const cached = JSON.parse(raw);
+      return validateStatus(cached.data);
+    } catch (error) {
+      console.warn('cache load failed', error);
+      return null;
+    }
+  }
+
+  async function update() {
+    try {
+      const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = validateStatus(await response.json());
+      render(data, 'データ更新済み');
+      saveCache(data);
+    } catch (error) {
+      console.error('status update failed', error);
+      const cached = loadCache();
+      if (cached) {
+        render(cached, '通信失敗：直近データを表示中');
+      } else {
+        byId('dataStatus').textContent = 'データ取得失敗';
+      }
+    }
+  }
+
+  update();
+  window.setInterval(update, REFRESH_INTERVAL_MS);
 })();
