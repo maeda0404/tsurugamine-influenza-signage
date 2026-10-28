@@ -1,28 +1,28 @@
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f9fc;color:#12344e;font-family:"Meiryo","メイリオ","Yu Gothic","游ゴシック",sans-serif}
-.screen{width:100vw;height:100vh;display:grid;grid-template-rows:14vh 78vh 8vh}
-header{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#e9f3f9;border-bottom:2px solid #d3e2eb;position:relative;z-index:2}
-header #area{font-size:2vw;font-weight:700;line-height:1}
-h1{margin:.7vh 0 0;font-size:3.4vw;line-height:1;font-weight:700}
-main{min-height:0;display:grid;grid-template-columns:18vw 60vw 18vw;gap:2vw;padding:2.8vh 1vw 1.8vh}
-.side{min-height:0;display:grid;grid-template-rows:1fr 1fr;place-items:center;gap:2vh}
-.side img{width:min(15vw,27vh);height:min(15vw,27vh);object-fit:contain}
-.center{min-height:0;border:4px solid #7892a4;border-radius:1.9vw;background:#fff;padding:2.5vh 1.5vw;display:flex;flex-direction:column;justify-content:center}
-.cards{min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:1.4vw}
-.card{min-width:0;height:60vh;border:5px solid #7d96a7;border-radius:1.6vw;text-align:center;padding:3vh 1.2vw 2.2vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff}
-.card h2{margin:0 0 2vh;font-size:2.25vw;line-height:1.1;font-weight:700}
-.badge{min-width:72%;padding:.75vh 1vw;border-radius:999px;background:#dce7ed;font-size:1.6vw;line-height:1.15;font-weight:700}
-.reading{display:flex;justify-content:center;align-items:baseline;margin-top:3vh;white-space:nowrap}
-.reading strong{font-size:7.4vw;line-height:.92;font-weight:700;letter-spacing:-.2vw;font-variant-numeric:tabular-nums}
-.reading span{font-size:2.15vw;font-weight:700;margin-left:.45vw}
-.metric{margin-top:3vh;font-size:1.8vw;line-height:1.15;font-weight:700}
-.trend{margin-top:2.6vh;font-size:1.35vw;font-weight:700}
-.week{margin-top:1vh;font-size:1.25vw;font-weight:700}
-.card.level-warning{border-color:#d71920;background:#fff0f0}.card.level-warning .badge{background:#d71920;color:#fff}
-.card.level-advisory{border-color:#f59e0b;background:#fff6df}.card.level-advisory .badge{background:#f59e0b;color:#12344e}
-.card.level-epidemic{border-color:#d8b928;background:#fffbe6}.card.level-epidemic .badge{background:#ffe064;color:#12344e}
-.card.level-normal{border-color:#3c9b64;background:#effaf3}.card.level-normal .badge{background:#3c9b64;color:#fff}
-.legend{display:none!important}
-.statusline{text-align:center;margin-top:2vh;font-size:1.15vw;font-weight:700}
-.source{text-align:center;margin-top:.7vh;font-size:.9vw;color:#486b80}
-footer{display:flex;align-items:center;justify-content:center;background:#e9f3f9;border-top:2px solid #d3e2eb;font-size:1.6vw;font-weight:700}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f9fc;color:#173b54;font-family:"Meiryo","メイリオ","Yu Gothic","游ゴシック",sans-serif}
+.screen{width:100vw;height:100vh;display:grid;grid-template-rows:13vh 79vh 8vh}
+header,.header{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#e9f3f9;border-bottom:2px solid #d3e2eb;position:relative;z-index:2}
+header #area,.header .prefecture,#area{font-size:1.8vw;font-weight:700;line-height:1}
+header h1,.header .title{margin:.6vh 0 0;font-size:3vw;line-height:1;font-weight:700}
+main,.infection-layout{min-height:0;display:grid;grid-template-columns:18vw 60vw 18vw;gap:2vw;padding:2.3vh 1vw 1.6vh}
+.side,.side-images{min-height:0;display:grid;grid-template-rows:1fr 1fr;place-items:center;gap:1.5vh;padding:0}
+.side img,.side-images img,.measure-image{display:block;width:min(14.5vw,27vh);height:min(14.5vw,27vh);max-width:none;max-height:none;object-fit:contain}
+.center,.infection-main,.status{min-width:0;min-height:0;border:4px solid #7892a4;border-radius:1.8vw;background:#f8fbfd;padding:2.2vh 1.5vw;display:flex;flex-direction:column;justify-content:center;gap:1.5vh;overflow:hidden}
+.cards,.disease-grid{min-width:0;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:1.4vw;width:100%}
+.card,.disease-card{min-width:0;height:61vh;border:5px solid #7d96a7;border-radius:1.55vw;text-align:center;padding:2.4vh 1.2vw;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff}
+.card h2,.disease-card h2,.disease-name{margin:0 0 1.7vh;font-size:2.25vw;line-height:1.1;font-weight:700}
+.badge,.level-badge{display:inline-block;min-width:72%;padding:.7vh 1vw;border-radius:999px;background:#dce7ed;font-size:1.55vw;line-height:1.15;font-weight:700}
+.reading,.disease-value{display:flex;justify-content:center;align-items:baseline;margin-top:2.7vh;white-space:nowrap}
+.reading strong,.disease-value strong{font-size:7.2vw;line-height:.92;font-weight:700;letter-spacing:-.18vw;font-variant-numeric:tabular-nums}
+.reading span,.disease-value .unit{font-size:2.05vw;font-weight:700;margin-left:.4vw}
+.metric,.metric-label,.disease-caption{margin-top:2.5vh;font-size:1.7vw;line-height:1.15;font-weight:700}
+.trend,.disease-meta{margin-top:2.2vh;font-size:1.25vw;font-weight:700}
+.week{margin-top:.8vh;font-size:1.18vw;font-weight:700}
+.card.level-warning,.disease-card.level-warning{border-color:#d71920;background:#fff0f0}.card.level-warning .badge,.disease-card.level-warning .level-badge{background:#d71920;color:#fff}
+.card.level-advisory,.disease-card.level-advisory{border-color:#f59e0b;background:#fff6df}.card.level-advisory .badge,.disease-card.level-advisory .level-badge{background:#f59e0b;color:#173b54}
+.card.level-epidemic,.disease-card.level-epidemic{border-color:#d8b928;background:#fffbe6}.card.level-epidemic .badge,.disease-card.level-epidemic .level-badge{background:#ffe064;color:#173b54}
+.card.level-normal,.disease-card.level-normal{border-color:#3ca36b;background:#effaf3}.card.level-normal .badge,.disease-card.level-normal .level-badge{background:#3ca36b;color:#fff}
+.legend{display:none!important}.updated,.source-row{display:none!important}
+.statusline,.data-state{text-align:center;margin-top:.4vh;font-size:1.05vw;font-weight:700}
+.source{text-align:center;font-size:.82vw;color:#486b80}
+footer{display:flex;align-items:center;justify-content:center;background:#e9f3f9;border-top:2px solid #d3e2eb;font-size:1.55vw;font-weight:700;text-align:center}
