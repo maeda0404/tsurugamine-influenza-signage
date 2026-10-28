@@ -1,11 +1,31 @@
 {
-  "region": "横浜市",
-  "year": 2026,
+  "schemaVersion": 2,
+  "area": "横浜市",
+  "unit": "定点当たり報告数",
+  "updatedAt": "2026-10-28T14:28:28+09:00",
+  "influenza": {
+    "label": "インフルエンザ",
+    "week": 42,
+    "value": 10.23,
+    "previousWeek": 41,
+    "previousValue": 23.45,
+    "change": -13.22,
+    "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261022_influenza_2026.csv",
+    "publishedDate": "2026-10-22"
+  },
+  "covid19": {
+    "label": "新型コロナ",
+    "week": 42,
+    "value": 0.98,
+    "previousWeek": 41,
+    "previousValue": 1.99,
+    "change": -1.01,
+    "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261022_covid-19_2026.csv",
+    "publishedDate": "2026-10-22"
+  },
   "week": 42,
-  "perSentinel": 10.23,
-  "previousPerSentinel": 23.45,
-  "difference": -13.22,
-  "metric": "定点当たり報告数",
-  "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261022_influenza_2026.csv",
-  "updatedAt": "2026-10-26T10:15:45+09:00"
+  "value": 10.23,
+  "previousValue": 23.45,
+  "change": -13.22,
+  "sourceUrl": "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv/20261022_influenza_2026.csv"
 }
