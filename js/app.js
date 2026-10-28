@@ -1,58 +1,116 @@
-"use strict";
 (() => {
-  const $ = id => document.getElementById(id);
-  const status = document.querySelector(".status");
-  const level = $("level"), value = $("value"), trend = $("trend"), updated = $("updated");
-  const label = level && level.querySelector(".level-label");
-  if (!status || !level || !label || !value || !trend || !updated) return;
-  let busy = false;
-  function setState(name, text) {
-    status.classList.remove("status-unknown", "status-normal", "status-spread", "status-warning", "status-alert");
-    status.classList.add("status-" + name);
-    label.textContent = text;
+  'use strict';
+
+  const DATA_URL = './data/status.json';
+  const REFRESH_MS = 10 * 60 * 1000;
+  const CACHE_KEY = 'tsurugamine_infection_last';
+
+  const $ = (id) => document.getElementById(id);
+  const setText = (id, value) => {
+    const el = $(id);
+    if (el) el.textContent = value;
+  };
+
+  const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
+  const fmt = (v) => isNumber(v) ? v.toFixed(2).replace(/\.00$/, '') : '--';
+
+  function saveCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (_) {}
   }
-  function reset(message) {
-    setState("unknown", "確認中"); value.textContent = "--";
-    trend.textContent = message; updated.textContent = "対象週：確認中";
-  }
-  function classify(n) {
-    if (n >= 30) return ["alert", "警報レベル"];
-    if (n >= 10) return ["warning", "注意報レベル"];
-    if (n >= 1) return ["spread", "流行中"];
-    return ["normal", "非流行"];
-  }
-  async function load() {
-    if (busy) return;
-    busy = true;
+
+  function loadCache() {
     try {
-      const res = await fetch("data/status.json?t=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw Error("HTTP " + res.status);
-      const d = await res.json();
-      if (d.region !== "横浜市" || d.metric !== "定点当たり報告数" ||
-          d.year !== 2026 || !Number.isInteger(d.week) || d.week < 1 || d.week > 53 ||
-          typeof d.perSentinel !== "number" || !Number.isFinite(d.perSentinel) ||
-          d.perSentinel < 0 || d.perSentinel > 10000) throw Error("データ不正");
-      const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
-      const end = new Date(Date.UTC(d.year, 0, 4));
-      end.setUTCDate(end.getUTCDate() - (end.getUTCDay() || 7) + 7 + (d.week - 1) * 7);
-      const age = (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - end.getTime()) / 86400000;
-      if (age < 0 || age > 21) throw Error("対象週が未終了または古い");
-      setState(...classify(d.perSentinel));
-      value.textContent = d.perSentinel.toFixed(2);
-      const p = d.previousPerSentinel;
-      if (typeof p === "number" && Number.isFinite(p) && p >= 0 && d.week > 1) {
-        const diff = Math.round((d.perSentinel - p) * 100) / 100;
-        const verified = typeof d.difference === "number" && Number.isFinite(d.difference) &&
-                         Math.abs(d.difference - diff) < 0.011;
-        trend.textContent = verified
-          ? `先週比 ${diff > 0 ? "+" : diff < 0 ? "" : "±"}${diff.toFixed(2)}人（前週 ${p.toFixed(2)}人）`
-          : "先週比：確認中";
-      } else trend.textContent = "先週比：データなし";
-      updated.textContent = `対象週：${d.year}年第${d.week}週`;
-    } catch (error) { console.error(error); reset("最新の公表値を確認できません"); }
-    finally { busy = false; }
+      const raw = localStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
   }
+
+  function normalizeDisease(item, fallback) {
+    if (!item || typeof item !== 'object') return null;
+    return {
+      label: item.label || fallback,
+      week: Number.isInteger(item.week) ? item.week : null,
+      value: Number(item.value),
+      previousWeek: Number.isInteger(item.previousWeek) ? item.previousWeek : null,
+      previousValue: item.previousValue == null ? null : Number(item.previousValue),
+      change: item.change == null ? null : Number(item.change),
+      sourceUrl: typeof item.sourceUrl === 'string' ? item.sourceUrl : '',
+      publishedDate: typeof item.publishedDate === 'string' ? item.publishedDate : ''
+    };
+  }
+
+  function validate(data) {
+    if (!data || typeof data !== 'object') throw new Error('invalid JSON');
+    const influenza = normalizeDisease(data.influenza || {
+      label: 'インフルエンザ', week: data.week, value: data.value,
+      previousValue: data.previousValue, change: data.change,
+      sourceUrl: data.sourceUrl
+    }, 'インフルエンザ');
+    const covid19 = normalizeDisease(data.covid19, '新型コロナ');
+    if (!influenza || !isNumber(influenza.value)) throw new Error('influenza missing');
+    if (!covid19 || !isNumber(covid19.value)) throw new Error('covid19 missing');
+    return { ...data, influenza, covid19 };
+  }
+
+  function trendText(item) {
+    if (!isNumber(item.previousValue) || !isNumber(item.change)) return '前週比較 --';
+    const sign = item.change > 0 ? '+' : '';
+    const arrow = item.change > 0 ? '↑' : item.change < 0 ? '↓' : '→';
+    return `前週 ${fmt(item.previousValue)} ${arrow} ${sign}${fmt(item.change)}`;
+  }
+
+  function renderDisease(prefix, item) {
+    setText(`${prefix}Value`, fmt(item.value));
+    setText(`${prefix}Week`, item.week ? `第${item.week}週` : '--');
+    setText(`${prefix}Trend`, trendText(item));
+    setText(`${prefix}Published`, item.publishedDate || '--');
+
+    const link = $(`${prefix}Source`);
+    if (link && item.sourceUrl) {
+      link.href = item.sourceUrl;
+      link.hidden = false;
+    }
+  }
+
+  function render(data, cached = false) {
+    renderDisease('influenza', data.influenza);
+    renderDisease('covid19', data.covid19);
+
+    // Compatibility with the current single-card HTML.
+    setText('value', fmt(data.influenza.value));
+    setText('week', data.influenza.week ? `第${data.influenza.week}週` : '--');
+    setText('trend', trendText(data.influenza));
+    setText('updated', data.updatedAt || data.influenza.publishedDate || '--');
+
+    setText('area', data.area || '横浜市');
+    setText('unit', data.unit || '定点当たり報告数');
+    setText('dataStatus', cached ? '最新取得に失敗：直近データを表示中' : 'データ更新済み');
+
+    document.documentElement.dataset.dataState = cached ? 'cached' : 'current';
+  }
+
+  function showError() {
+    setText('dataStatus', '最新データを取得できません');
+    document.documentElement.dataset.dataState = 'error';
+  }
+
+  async function load() {
+    try {
+      const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = validate(await response.json());
+      saveCache(data);
+      render(data, false);
+    } catch (error) {
+      console.error('感染症データ取得失敗', error);
+      const cached = loadCache();
+      if (cached) {
+        try { render(validate(cached), true); return; } catch (_) {}
+      }
+      showError();
+    }
+  }
+
   load();
-  const timer = setInterval(load, 600000);
-  window.addEventListener("pagehide", () => clearInterval(timer), {once: true});
+  setInterval(load, REFRESH_MS);
 })();
