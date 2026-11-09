@@ -16,19 +16,26 @@ from pathlib import Path
 # 神奈川県 感染症発生動向調査 CSV
 BASE = "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv"
 
+# 出力先
 OUT = Path("data/status.json")
 
 # 過去45日分の日付をさかのぼって最新CSVを探す
 SEARCH_DAYS = 45
 
-# 神奈川県CSVの実際のファイル名に合わせる
+# 新旧ファイル名に対応
 DISEASES = {
     "influenza": {
-        "labels": ["influenza"],
+        "labels": [
+            "influenza",
+        ],
         "display": "インフルエンザ",
     },
     "covid19": {
-        "labels": ["COVID-19"],
+        "labels": [
+            "COVID-19",
+            "covid-19",
+            "covid_19",
+        ],
         "display": "新型コロナ",
     },
 }
@@ -41,7 +48,7 @@ def fetch(url: str) -> bytes:
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "tsurugamine-signage/2.0",
+            "User-Agent": "tsurugamine-signage/2.1",
         },
     )
 
@@ -58,7 +65,7 @@ def fetch(url: str) -> bytes:
 
 
 def decode_csv(body: bytes) -> str:
-    """文字コードを判定してCSVをデコードする"""
+    """CSVの文字コードを判定してデコードする"""
     for enc in ("utf-8-sig", "cp932", "shift_jis"):
         try:
             return body.decode(enc)
@@ -92,9 +99,9 @@ def parse_yokohama(text: str) -> list[tuple[int, float]]:
         w = row[week_i].strip()
         v = row[yokohama_i].strip()
 
-        if re.fullmatch(r"\d{1,2}", w) and re.fullmatch(
-            r"\d+(?:\.\d+)?",
-            v,
+        if (
+            re.fullmatch(r"\d{1,2}", w)
+            and re.fullmatch(r"\d+(?:\.\d+)?", v)
         ):
             values.append(
                 (
@@ -113,24 +120,59 @@ def parse_yokohama(text: str) -> list[tuple[int, float]]:
 
 def candidate_urls(day: datetime, disease: str) -> list[str]:
     """
-    神奈川県CSVのURL候補を作る。
+    神奈川県CSVの新旧URL候補を作る。
 
-    実際の形式:
-    20261105_influenza.csv
-    20261105_COVID-19.csv
+    現行例:
+      20261105_influenza.csv
+      20261105_COVID-19.csv
+
+    旧形式にも対応:
+      YYYYMMDD_influenza_YYYY.csv
+      YYYYMMDD-influenza_YYYY.csv
+
+    COVID-19については大文字小文字・
+    ハイフン/アンダーバー違いにも対応する。
     """
-    stamp = day.strftime("%Y%m%d")
 
+    stamp = day.strftime("%Y%m%d")
+    year = day.strftime("%Y")
     labels = DISEASES[disease]["labels"]
 
     urls: list[str] = []
 
     for label in labels:
+
+        # 1. 現在の形式
+        # 例:
+        # 20261105_influenza.csv
+        # 20261105_COVID-19.csv
         urls.append(
             f"{BASE}/{stamp}_{label}.csv"
         )
 
-    return urls
+        # 2. 旧形式：アンダーバー + 年
+        # 例:
+        # 20261105_influenza_2026.csv
+        urls.append(
+            f"{BASE}/{stamp}_{label}_{year}.csv"
+        )
+
+        # 3. 旧形式：日付と病名の間がハイフン + 年
+        # 例:
+        # 20261105-influenza_2026.csv
+        urls.append(
+            f"{BASE}/{stamp}-{label}_{year}.csv"
+        )
+
+        # 4. 念のため年付き＋末尾側ハイフン形式も候補にする
+        # 例:
+        # 20261105_influenza-2026.csv
+        urls.append(
+            f"{BASE}/{stamp}_{label}-{year}.csv"
+        )
+
+    # 重複URLを順番を維持したまま除去
+    return list(dict.fromkeys(urls))
 
 
 def find_latest(disease: str, now: datetime) -> dict:
@@ -146,9 +188,7 @@ def find_latest(disease: str, now: datetime) -> dict:
 
             try:
                 body = fetch(url)
-
                 text = decode_csv(body)
-
                 values = parse_yokohama(text)
 
                 week, current = values[-1]
@@ -157,6 +197,14 @@ def find_latest(disease: str, now: datetime) -> dict:
                     prev_week, previous = values[-2]
                 else:
                     prev_week, previous = None, None
+
+                # Actionsのログで、
+                # 実際にどのURLを採用したか分かるようにする
+                print(
+                    f"FOUND {disease}: "
+                    f"{url} "
+                    f"(week={week}, value={current})"
+                )
 
                 return {
                     "label": DISEASES[disease]["display"],
@@ -187,9 +235,9 @@ def find_latest(disease: str, now: datetime) -> dict:
 def atomic_write(path: Path, data: dict) -> None:
     """status.jsonを安全に上書きする"""
 
-    path.parent.nt.mkdir(
+    path.parent.mkdir(
         parents=True,
-   True,
+        exist_ok=True,
     )
 
     fd, tmp = tempfile.mkstemp(
@@ -213,9 +261,7 @@ def atomic_write(path: Path, data: dict) -> None:
             )
 
             f.write("\n")
-
             f.flush()
-
             os.fsync(f.fileno())
 
         os.replace(
@@ -233,7 +279,7 @@ def main() -> int:
 
     now = datetime.now(JST)
 
-    # 更新に失敗した場合に既存データを残す
+    # 更新失敗時に現在のstatus.jsonを残す
     old = {}
 
     if OUT.exists():
@@ -266,11 +312,11 @@ def main() -> int:
                 timespec="seconds"
             ),
 
+            # 新形式
             "influenza": flu,
-
             "covid19": covid,
 
-            # 既存表示との互換性を維持
+            # 既存HTML / JSとの互換性を維持
             "week": flu["week"],
             "value": flu["value"],
             "previousValue": flu["previousValue"],
