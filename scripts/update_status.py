@@ -13,10 +13,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-# ============================================================
-# 設定
-# ============================================================
-
 # 神奈川県 感染症発生動向調査 CSV
 BASE = "https://www.pref.kanagawa.jp/sys/eiken/003_center/0001_weekly/csv"
 
@@ -36,11 +32,7 @@ DISEASES = {
     },
     "covid19": {
         "labels": [
-            # 現在確認できている形式
-            # 例: 20261119-covid19_2026.csv
             "covid19",
-
-            # 過去・別表記にも対応
             "COVID-19",
             "covid-19",
             "covid_19",
@@ -52,26 +44,20 @@ DISEASES = {
 JST = timezone(timedelta(hours=9))
 
 
-# ============================================================
-# CSV取得
-# ============================================================
-
 def fetch(url: str) -> bytes:
     """CSVを取得する"""
 
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "tsurugamine-signage/2.2",
+            "User-Agent": "tsurugamine-signage/2.1",
         },
     )
 
     with urllib.request.urlopen(req, timeout=15) as r:
-
         if r.status != 200:
             raise RuntimeError(f"HTTP {r.status}")
 
-        # 異常に大きなレスポンスを防止
         body = r.read(2_000_001)
 
         if not body or len(body) > 2_000_000:
@@ -80,18 +66,10 @@ def fetch(url: str) -> bytes:
         return body
 
 
-# ============================================================
-# 文字コード判定
-# ============================================================
-
 def decode_csv(body: bytes) -> str:
     """CSVの文字コードを判定してデコードする"""
 
-    for enc in (
-        "utf-8-sig",
-        "cp932",
-        "shift_jis",
-    ):
+    for enc in ("utf-8-sig", "cp932", "shift_jis"):
         try:
             return body.decode(enc)
         except UnicodeDecodeError:
@@ -100,23 +78,14 @@ def decode_csv(body: bytes) -> str:
     raise RuntimeError("unsupported CSV encoding")
 
 
-# ============================================================
-# 横浜市データ解析
-# ============================================================
-
 def parse_yokohama(text: str) -> list[tuple[int, float]]:
     """CSVから横浜市の週別定点当たり報告数を取得する"""
 
-    rows = list(
-        csv.reader(
-            io.StringIO(text)
-        )
-    )
+    rows = list(csv.reader(io.StringIO(text)))
 
     if not rows:
         raise RuntimeError("empty CSV")
 
-    # 空白などによる列名の差異を吸収
     header = [
         re.sub(r"\s+", "", x)
         for x in rows[0]
@@ -125,7 +94,6 @@ def parse_yokohama(text: str) -> list[tuple[int, float]]:
     try:
         week_i = header.index("週")
         yokohama_i = header.index("横浜市")
-
     except ValueError as e:
         raise RuntimeError(
             "required columns not found"
@@ -134,53 +102,34 @@ def parse_yokohama(text: str) -> list[tuple[int, float]]:
     values: list[tuple[int, float]] = []
 
     for row in rows[1:]:
-
-        if len(row) <= max(
-            week_i,
-            yokohama_i,
-        ):
+        if len(row) <= max(week_i, yokohama_i):
             continue
 
         w = row[week_i].strip()
         v = row[yokohama_i].strip()
 
-        # 「週」が数字か確認
-        if not re.fullmatch(
-            r"\d{1,2}",
-            w,
+        if (
+            re.fullmatch(r"\d{1,2}", w)
+            and re.fullmatch(r"\d+(?:\.\d+)?", v)
         ):
-            continue
-
-        # 横浜市の値が数字か確認
-        if not re.fullmatch(
-            r"\d+(?:\.\d+)?",
-            v,
-        ):
-            continue
-
-        values.append(
-            (
-                int(w),
-                float(v),
+            values.append(
+                (
+                    int(w),
+                    float(v),
+                )
             )
-        )
 
     if not values:
         raise RuntimeError(
             "no Yokohama values"
         )
 
-    # 週番号順
     values.sort(
         key=lambda x: x[0]
     )
 
     return values
 
-
-# ============================================================
-# URL候補生成
-# ============================================================
 
 def candidate_urls(
     day: datetime,
@@ -189,22 +138,17 @@ def candidate_urls(
     """
     神奈川県CSVの新旧URL候補を作る。
 
-    対応例:
+    現行例:
+    20261105_influenza.csv
+    20261105_COVID-19.csv
 
-    20261119_influenza.csv
-    20261119_influenza_2026.csv
-    20261119-influenza_2026.csv
-    20261119_influenza-2026.csv
+    旧形式にも対応:
+    YYYYMMDD_influenza_YYYY.csv
+    YYYYMMDD-influenza_YYYY.csv
 
-    COVID-19:
-
-    20261119-covid19_2026.csv
-    20261119_COVID-19.csv
-    20261119_COVID-19_2026.csv
-    20261119-covid-19_2026.csv
-    20261119_covid_19_2026.csv
-
-    など。
+    COVID-19については
+    covid19 / COVID-19 / covid-19 / covid_19
+    の表記違いにも対応する。
     """
 
     stamp = day.strftime("%Y%m%d")
@@ -216,90 +160,53 @@ def candidate_urls(
 
     for label in labels:
 
-        # ----------------------------------------------------
-        # 1. 日付_病名.csv
-        #
+        # 1. 現在の形式
         # 例:
-        # 20261119_influenza.csv
-        # 20261119_covid19.csv
-        # ----------------------------------------------------
-
+        # 20261105_influenza.csv
+        # 20261105_COVID-19.csv
         urls.append(
             f"{BASE}/{stamp}_{label}.csv"
         )
 
-        # ----------------------------------------------------
-        # 2. 日付_病名_年.csv
-        #
+        # 2. 旧形式：アンダーバー + 年
         # 例:
-        # 20261119_influenza_2026.csv
-        # 20261119_covid19_2026.csv
-        # ----------------------------------------------------
-
+        # 20261105_influenza_2026.csv
         urls.append(
             f"{BASE}/{stamp}_{label}_{year}.csv"
         )
 
-        # ----------------------------------------------------
-        # 3. 日付-病名_年.csv
+        # 3. 旧形式：日付と病名の間がハイフン + 年
+        # 例:
+        # 20261105-influenza_2026.csv
         #
-        # 現在のCOVID-19で確認できている形式:
-        #
+        # covid19 の場合:
         # 20261119-covid19_2026.csv
-        # ----------------------------------------------------
-
         urls.append(
             f"{BASE}/{stamp}-{label}_{year}.csv"
         )
 
-        # ----------------------------------------------------
-        # 4. 日付_病名-年.csv
-        #
-        # 念のため旧形式・表記揺れにも対応
-        # ----------------------------------------------------
-
+        # 4. 念のため年付き＋末尾側ハイフン形式も候補にする
+        # 例:
+        # 20261105_influenza-2026.csv
         urls.append(
             f"{BASE}/{stamp}_{label}-{year}.csv"
         )
 
-        # ----------------------------------------------------
-        # 5. 日付-病名.csv
-        #
-        # 年なし + ハイフン形式にも対応
-        # ----------------------------------------------------
+    # 重複URLを順番を維持したまま除去
+    return list(dict.fromkeys(urls))
 
-        urls.append(
-            f"{BASE}/{stamp}-{label}.csv"
-        )
-
-    # 重複URLを順番を維持したまま削除
-    return list(
-        dict.fromkeys(urls)
-    )
-
-
-# ============================================================
-# 最新CSV検索
-# ============================================================
 
 def find_latest(
     disease: str,
     now: datetime,
 ) -> dict:
-    """
-    最新の有効なCSVを探して
-    横浜市の最新値・前週値を返す。
-    """
+    """最新の有効なCSVを探して横浜市の値を返す"""
 
     errors: list[str] = []
 
-    for ago in range(
-        SEARCH_DAYS + 1
-    ):
+    for ago in range(SEARCH_DAYS + 1):
 
-        day = now - timedelta(
-            days=ago
-        )
+        day = now - timedelta(days=ago)
 
         for url in candidate_urls(
             day,
@@ -307,80 +214,45 @@ def find_latest(
         ):
 
             try:
-
                 body = fetch(url)
 
                 text = decode_csv(body)
 
-                values = parse_yokohama(
-                    text
-                )
+                values = parse_yokohama(text)
 
-                # 最新週
                 week, current = values[-1]
 
-                # 前週
                 if len(values) > 1:
-
-                    prev_week, previous = (
-                        values[-2]
-                    )
-
+                    prev_week, previous = values[-2]
                 else:
+                    prev_week, previous = None, None
 
-                    prev_week = None
-                    previous = None
-
-                # GitHub Actionsのログで
-                # 採用URLを確認できるようにする
+                # Actionsのログで、
+                # 実際にどのURLを採用したか分かるようにする
                 print(
                     f"FOUND {disease}: "
                     f"{url} "
-                    f"(week={week}, "
-                    f"value={current})"
+                    f"(week={week}, value={current})"
                 )
 
                 return {
-                    "label":
-                        DISEASES[disease][
-                            "display"
-                           ],
-
-                    "week":
-                        week,
-
-                    "value":
-                        current,
-
-                    "previousWeek":
-                        prev_week,
-
-                    "previousValue":
-                        previous,
-
-                 
-                        round(
-                            current - previous,
-                            2,
-                        )
+                    "label": DISEASES[disease]["display"],
+                    "week": week,
+                    "value": current,
+                    "previousWeek": prev_week,
+                    "previousValue": previous,
+                    "change": (
+                        round(current - previous, 2)
                         if previous is not None
                         else None
                     ),
-
-                    "sourceUrl":
-                        url,
-
-                    "publishedDate":
-                        day.strftime(
-                            "%Y-%m-%d"
-                        ),
+                    "sourceUrl": url,
+                    "publishedDate": day.strftime("%Y-%m-%d"),
                 }
 
             except Exception as e:
-
                 errors.append(
-                    f"{url}: "
-                    f"{type(e).__name__}"
+                    f"{url}: {type(e).__name__}"
                 )
 
     raise RuntimeError(
@@ -389,18 +261,11 @@ def find_latest(
     )
 
 
-# ============================================================
-# JSON安全書き込み
-# ============================================================
-
 def atomic_write(
     path: Path,
     data: dict,
 ) -> None:
-    """
-    status.jsonを一時ファイル経由で
-    安全に上書きする。
-    """
+    """status.jsonを安全に上書きする"""
 
     path.parent.mkdir(
         parents=True,
@@ -428,12 +293,8 @@ def atomic_write(
             )
 
             f.write("\n")
-
             f.flush()
-
-            os.fsync(
-                f.fileno()
-            )
+            os.fsync(f.fileno())
 
         os.replace(
             tmp,
@@ -446,10 +307,6 @@ def atomic_write(
             os.unlink(tmp)
 
 
-# ============================================================
-# メイン処理
-# ============================================================
-
 def main() -> int:
 
     now = datetime.now(JST)
@@ -458,93 +315,52 @@ def main() -> int:
     old = {}
 
     if OUT.exists():
-
         try:
-
             old = json.loads(
                 OUT.read_text(
                     encoding="utf-8"
                 )
             )
-
         except Exception:
-
             old = {}
 
     try:
-
-        # ------------------------------
-        # インフルエンザ
-        # ------------------------------
 
         flu = find_latest(
             "influenza",
             now,
         )
 
-        # ------------------------------
-        # 新型コロナ
-        # ------------------------------
-
         covid = find_latest(
             "covid19",
             now,
         )
 
-        # ------------------------------
-        # 出力JSON
-        # ------------------------------
-
         result = {
             "schemaVersion": 2,
-
-            "area":
-                "横浜市",
-
-            "unit":
-                "定点当たり報告数",
-
-            "updatedAt":
-                now.isoformat(
-                    timespec="seconds"
-                ),
+            "area": "横浜市",
+            "unit": "定点当たり報告数",
+            "updatedAt": now.isoformat(
+                timespec="seconds"
+            ),
 
             # 新形式
-            "influenza":
-                flu,
+            "influenza": flu,
+            "covid19": covid,
 
-            "covid19":
-                covid,
-
-            # 既存HTML / JSとの互換性維持
-            # 従来フィールドは
-            # インフルエンザの値を入れる
-            "week":
-                flu["week"],
-
-            "value":
-                flu["value"],
-
-            "previousValue":
-                flu["previousValue"],
-
-            "change":
-                flu["change"],
-
-            "sourceUrl":
-                flu["sourceUrl"],
+            # 既存HTML / JSとの互換性を維持
+            "week": flu["week"],
+            "value": flu["value"],
+            "previousValue": flu["previousValue"],
+            "change": flu["change"],
+            "sourceUrl": flu["sourceUrl"],
         }
-
-        # ------------------------------
-        # 書き込み
-        # ------------------------------
 
         atomic_write(
             OUT,
             result,
         )
 
-        # Actionsログ表示
         print(
             json.dumps(
                 result,
@@ -562,12 +378,9 @@ def main() -> int:
             file=sys.stderr,
         )
 
-        # 既存データは削除しない
         if old:
-
             print(
-                "Existing data/status.json "
-                "preserved.",
+                "Existing data/ preserved.",
                 file=sys.stderr,
             )
 
@@ -575,6 +388,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(
-        main()
-    )
+    raise SystemExit(main())
